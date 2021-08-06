@@ -43,11 +43,17 @@ class Reconciliation:
 
     def reconcile(self):
         for debit in self.debits:
-            for credit in self.credits:
-                if self.is_match(debit=debit, credit=credit):
-                    print(f'Match: {debit} to {credit}')
-                    self.matches.append({'debit': debit, 'credit': credit})
-                    self.credits.remove(credit)
+            if self.has_match(debit=debit):
+                continue
+
+    def has_match(self, debit):
+        for credit in self.credits:
+            if self.is_match(debit=debit, credit=credit):
+                print(f'Match: {debit} to {credit}')
+                self.matches.append({'debit': debit, 'credit': credit})
+                self.credits.remove(credit)
+                return True
+        return False
 
     @staticmethod
     def is_match(debit, credit):
