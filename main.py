@@ -1,5 +1,6 @@
 import os
 import openpyxl
+import datetime
 
 RNV_LOCATION = f'C:{os.path.sep}Users{os.path.sep}Malcolm{os.path.sep}Desktop{os.path.sep}Working Folder{os.path.sep}RNVRec{os.path.sep}'
 
@@ -47,7 +48,6 @@ class Reconciliation:
                     print(f'Match: {debit} to {credit}')
                     self.matches.append({'debit': debit, 'credit': credit})
                     self.credits.remove(credit)
-        print(f'Found {len(self.matches)} matches to reconcile')
 
     @staticmethod
     def is_match(debit, credit):
@@ -55,8 +55,12 @@ class Reconciliation:
 
 
 if __name__ == '__main__':
+    start = datetime.datetime.now().replace(microsecond=0)
     rec = Reconciliation()
     rec.open()
     rec.reconcile()
     rec.save()
+    end = datetime.datetime.now().replace(microsecond=0)
+    print(f'Found {len(rec.matches)} matches to reconcile in {end-start} seconds')
+
 
