@@ -38,7 +38,7 @@ class Reconciliation:
                 self.debits.append({"vendor": vendor, "po": po, "amount": abs(float(amount)), "document": doc})
             else:
                 self.credits.append({"vendor": vendor, "po": po, "amount": abs(float(amount)), "document": doc})
-        except ValueError:
+        except Exception:
             pass
 
     def reconcile(self):
