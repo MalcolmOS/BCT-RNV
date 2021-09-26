@@ -1,8 +1,8 @@
-import os
 import openpyxl
 import datetime
+from pathlib import Path
 
-RNV_LOCATION = f'C:{os.path.sep}Users{os.path.sep}Malcolm{os.path.sep}Desktop{os.path.sep}Working Folder{os.path.sep}RNVRec{os.path.sep}'
+RNV_LOCATION = Path(f'C:\\Users\\Malcolm\\Desktop\\Working Folder\\AP\\RNVRec')
 
 
 class Reconciliation:
@@ -13,22 +13,24 @@ class Reconciliation:
         self.wb = None
         self.sheet = None
 
-    def open(self):
-        self.wb = openpyxl.load_workbook(filename=f'{RNV_LOCATION}RNV.xlsx')
-        self.sheet = self.wb['JDEData']
+    def open(self) -> None:
+        self.wb = openpyxl.load_workbook(filename=RNV_LOCATION.joinpath('RNV.xlsx'))
+        self.sheet = self.wb['Sheet1']
         for row in self.sheet.rows:
             self.add_row(row=row)
 
-    def save(self):
+    def save(self) -> None:
+        self.wb.create_sheet("Matches")
         self.wb.active = self.wb['Matches']
+        self.wb.active.append(('Vendor', 'PO', 'Debit Amount', 'Document', '', '', 'Vendor', 'PO', 'Credit Amount', 'Document'))
         for match in self.matches:
             debit = match['debit']
             credit = match['credit']
             self.wb.active.append((debit['vendor'], debit['po'], debit['amount'], debit['document'], '', '', credit['vendor'], credit['po'], credit['amount'], credit['document']))
-        self.wb.save(f'{RNV_LOCATION}RNV.xlsx')
+        self.wb.save(RNV_LOCATION.joinpath('RNV.xlsx'))
         self.wb.close()
 
-    def add_row(self, row):
+    def add_row(self, row) -> None:
         amount = row[1].value
         doc = row[8].value
         po = row[12].value
@@ -41,12 +43,12 @@ class Reconciliation:
         except Exception:
             pass
 
-    def reconcile(self):
+    def reconcile(self) -> None:
         for debit in self.debits:
             if self.has_match(debit=debit):
                 continue
 
-    def has_match(self, debit):
+    def has_match(self, debit) -> bool:
         for credit in self.credits:
             if self.is_match(debit=debit, credit=credit):
                 print(f'Match: {debit} to {credit}')
@@ -56,7 +58,7 @@ class Reconciliation:
         return False
 
     @staticmethod
-    def is_match(debit, credit):
+    def is_match(debit, credit) -> bool:
         return debit['vendor'] == credit['vendor'] and debit['po'] == credit['po'] and debit['amount'] == credit['amount']
 
 
@@ -68,5 +70,3 @@ if __name__ == '__main__':
     rec.save()
     end = datetime.datetime.now().replace(microsecond=0)
     print(f'Found {len(rec.matches)} matches to reconcile in {end-start} seconds')
-
-
