@@ -33,17 +33,21 @@ class Reconciliation:
     def add_row(self, row) -> None:
         amount = row[1].value
         doc = row[8].value
+        type = row[10].value
         po = row[12].value
         vendor = row[24].value
         try:
             if float(amount) > 0:
-                self.debits.append({"vendor": vendor, "po": po, "amount": abs(float(amount)), "document": doc})
+                self.debits.append({"vendor": vendor, "po": po, "amount": abs(float(amount)), "document": doc, 'type': type})
             else:
-                self.credits.append({"vendor": vendor, "po": po, "amount": abs(float(amount)), "document": doc})
+                self.credits.append({"vendor": vendor, "po": po, "amount": abs(float(amount)), "document": doc, 'type': type })
         except Exception:
             pass
 
     def reconcile(self) -> None:
+        for debit in self.debits:
+            if debit['type'] == 'PV' and self.has_match(debit=debit):
+                continue
         for debit in self.debits:
             if self.has_match(debit=debit):
                 continue
@@ -70,3 +74,4 @@ if __name__ == '__main__':
     rec.save()
     end = datetime.datetime.now().replace(microsecond=0)
     print(f'Found {len(rec.matches)} matches to reconcile in {end-start} seconds')
+
