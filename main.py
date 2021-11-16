@@ -49,7 +49,7 @@ class Reconciliation:
             if debit['type'] == 'PV' and self.has_match(debit=debit):
                 continue
         for debit in self.debits:
-            if self.has_match(debit=debit):
+            if debit['type'] == 'OV' and self.has_match(debit=debit):
                 continue
 
     def has_match(self, debit) -> bool:
@@ -74,4 +74,5 @@ if __name__ == '__main__':
     rec.save()
     end = datetime.datetime.now().replace(microsecond=0)
     print(f'Found {len(rec.matches)} matches to reconcile in {end-start} seconds')
+
 
